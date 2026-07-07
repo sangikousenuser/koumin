@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ja"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>バブル経済期 - お金の流れ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: #ffffff;
+            font-family: 'Noto Sans JP', sans-serif;
+            color: #1e293b;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 0;
+        }
+
+        /* 図解エリア */
+        .diagram-area {
+            position: relative;
+            width: 1200px;
+            height: 700px;
+            background: #ffffff;
+            overflow: hidden;
+        }
+
+        /* ノード（建物） */
+        .node-box {
+            position: absolute;
+            background: #ffffff;
+            border-radius: 16px;
+            border: 4px solid;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 180px;
+            height: 140px;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+        .node-box.bank { top: 22%; left: 22%; border-color: #10b981; }
+        .node-box.boj  { top: 22%; left: 78%; border-color: #64748b; }
+        .node-box.company { top: 82%; left: 22%; border-color: #3b82f6; }
+        .node-box.house   { top: 82%; left: 78%; border-color: #f59e0b; }
+        
+        .node-box i { font-size: 40px; margin-bottom: 10px; }
+        .node-box.bank i { color: #10b981; }
+        .node-box.boj i { color: #64748b; }
+        .node-box.company i { color: #3b82f6; }
+        .node-box.house i { color: #f59e0b; }
+        .node-box span { font-weight: bold; font-size: 20px; }
+
+        /* SVGとパイプ */
+        .svg-layer {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%; z-index: 1;
+        }
+        .pipe-base {
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        .pipe-blue { stroke: #0ea5e9; }
+        .pipe-orange { stroke: #f97316; }
+
+        .pipe-flow {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.8);
+            stroke-linecap: round;
+        }
+
+        @keyframes flowAnim { to { stroke-dashoffset: -200; } }
+
+        /* バブル期 */
+        .pipe-boj-bank { stroke-width: 40px; }
+        .pipe-bank-comp { stroke-width: 50px; }
+        .pipe-bank-house { stroke-width: 45px; }
+        
+        .pipe-flow-boj-bank { stroke-width: 15px; stroke-dasharray: 25 25; animation: flowAnim 1s linear infinite; }
+        .pipe-flow-bank-comp { stroke-width: 20px; stroke-dasharray: 35 35; animation: flowAnim 0.8s linear infinite; }
+        .pipe-flow-bank-house { stroke-width: 20px; stroke-dasharray: 35 35; animation: flowAnim 0.8s linear infinite; }
+
+        /* ラベル */
+        .labels-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5;
+        }
+        .pipe-label {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transform: translate(-50%, -50%);
+            border: 2px solid #e2e8f0;
+            text-align: center;
+        }
+        .pipe-label span { display: block; font-size: 12px; color: #64748b; font-weight: normal; margin-top: 4px; }
+        
+        .label-boj { top: 22%; left: 50%; color: #0ea5e9; border-color: #bae6fd; margin-top: -70px; }
+        .label-comp { top: 52%; left: 22%; color: #f97316; border-color: #fed7aa; margin-left: -100px; }
+        .label-house { top: 52%; left: 50%; color: #f97316; border-color: #fed7aa; }
+    </style>
+</head>
+<body>
+
+<div class="diagram-area" id="diagram-area">
+    <!-- SVG Layer for Pipes -->
+    <svg class="svg-layer" width="100%" height="100%">
+        <!-- BOJ to Bank -->
+        <line x1="78%" y1="22%" x2="22%" y2="22%" class="pipe-base pipe-blue pipe-boj-bank"></line>
+        <line x1="78%" y1="22%" x2="22%" y2="22%" class="pipe-flow pipe-flow-boj-bank"></line>
+        
+        <!-- Bank to Company -->
+        <line x1="22%" y1="22%" x2="22%" y2="82%" class="pipe-base pipe-orange pipe-bank-comp"></line>
+        <line x1="22%" y1="22%" x2="22%" y2="82%" class="pipe-flow pipe-flow-bank-comp"></line>
+
+        <!-- Bank to Household -->
+        <line x1="22%" y1="22%" x2="78%" y2="82%" class="pipe-base pipe-orange pipe-bank-house"></line>
+        <line x1="22%" y1="22%" x2="78%" y2="82%" class="pipe-flow pipe-flow-bank-house"></line>
+    </svg>
+
+    <!-- Node Layer -->
+    <div class="node-box bank"><i class="fa-solid fa-building"></i><span>市中銀行</span></div>
+    <div class="node-box boj"><i class="fa-solid fa-building-columns"></i><span>日本銀行</span></div>
+    <div class="node-box company"><i class="fa-solid fa-industry"></i><span>企 業</span></div>
+    <div class="node-box house"><i class="fa-solid fa-house"></i><span>家 庭</span></div>
+
+    <!-- Labels Layer -->
+    <div class="labels-layer">
+        <div class="pipe-label label-boj">資金供給<br><span>経済成長を支えるマネー</span></div>
+        <div class="pipe-label label-comp">積極的な借入・財テク<br><span>不動産・株式への投機</span></div>
+        <div class="pipe-label label-house">旺盛な消費・投資<br><span>高額消費・住宅ローン</span></div>
+    </div>
+</div>
+
+</body></html>
